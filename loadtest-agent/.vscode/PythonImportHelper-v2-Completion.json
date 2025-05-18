@@ -1,0 +1,149 @@
+[
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "ChatOpenAI",
+        "importPath": "langchain.chat_models",
+        "description": "langchain.chat_models",
+        "isExtraImport": true,
+        "detail": "langchain.chat_models",
+        "documentation": {}
+    },
+    {
+        "label": "LLMChain",
+        "importPath": "langchain.chains",
+        "description": "langchain.chains",
+        "isExtraImport": true,
+        "detail": "langchain.chains",
+        "documentation": {}
+    },
+    {
+        "label": "PromptTemplate",
+        "importPath": "langchain.prompts",
+        "description": "langchain.prompts",
+        "isExtraImport": true,
+        "detail": "langchain.prompts",
+        "documentation": {}
+    },
+    {
+        "label": "GENERATE_JMX_PROMPT",
+        "importPath": "prompts",
+        "description": "prompts",
+        "isExtraImport": true,
+        "detail": "prompts",
+        "documentation": {}
+    },
+    {
+        "label": "run_jmeter",
+        "importPath": "tools",
+        "description": "tools",
+        "isExtraImport": true,
+        "detail": "tools",
+        "documentation": {}
+    },
+    {
+        "label": "analyze_results",
+        "importPath": "tools",
+        "description": "tools",
+        "isExtraImport": true,
+        "detail": "tools",
+        "documentation": {}
+    },
+    {
+        "label": "subprocess",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "subprocess",
+        "description": "subprocess",
+        "detail": "subprocess",
+        "documentation": {}
+    },
+    {
+        "label": "pandas",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pandas",
+        "description": "pandas",
+        "detail": "pandas",
+        "documentation": {}
+    },
+    {
+        "label": "llm",
+        "kind": 5,
+        "importPath": "main",
+        "description": "main",
+        "peekOfCode": "llm = ChatOpenAI(model=\"gpt-4\", temperature=0)\n# Task queue\ntask_queue = [\n    {\"id\": 1, \"task\": \"generate test plan\", \"done\": False},\n    {\"id\": 2, \"task\": \"run test\", \"done\": False},\n    {\"id\": 3, \"task\": \"analyze results\", \"done\": False}\n]\n# Chains\ngenerate_jmx_chain = LLMChain(llm=llm, prompt=GENERATE_JMX_PROMPT)\n# Simulated user input",
+        "detail": "main",
+        "documentation": {}
+    },
+    {
+        "label": "task_queue",
+        "kind": 5,
+        "importPath": "main",
+        "description": "main",
+        "peekOfCode": "task_queue = [\n    {\"id\": 1, \"task\": \"generate test plan\", \"done\": False},\n    {\"id\": 2, \"task\": \"run test\", \"done\": False},\n    {\"id\": 3, \"task\": \"analyze results\", \"done\": False}\n]\n# Chains\ngenerate_jmx_chain = LLMChain(llm=llm, prompt=GENERATE_JMX_PROMPT)\n# Simulated user input\ncontext = {\n    \"url\": \"https://example.com \",",
+        "detail": "main",
+        "documentation": {}
+    },
+    {
+        "label": "generate_jmx_chain",
+        "kind": 5,
+        "importPath": "main",
+        "description": "main",
+        "peekOfCode": "generate_jmx_chain = LLMChain(llm=llm, prompt=GENERATE_JMX_PROMPT)\n# Simulated user input\ncontext = {\n    \"url\": \"https://example.com \",\n    \"users\": 10,\n    \"duration\": 60,\n    \"output_file\": \"results.jtl\"\n}\n# Loop through tasks\nfor task in task_queue:",
+        "detail": "main",
+        "documentation": {}
+    },
+    {
+        "label": "context",
+        "kind": 5,
+        "importPath": "main",
+        "description": "main",
+        "peekOfCode": "context = {\n    \"url\": \"https://example.com \",\n    \"users\": 10,\n    \"duration\": 60,\n    \"output_file\": \"results.jtl\"\n}\n# Loop through tasks\nfor task in task_queue:\n    if task[\"done\"]:\n        continue",
+        "detail": "main",
+        "documentation": {}
+    },
+    {
+        "label": "run_jmeter",
+        "kind": 2,
+        "importPath": "tools",
+        "description": "tools",
+        "peekOfCode": "def run_jmeter(jmx_file=\"test.jmx\", jtl_file=\"results.jtl\"):\n    print(f\"Running JMeter test: {jmx_file}\")\n    cmd = [\"jmeter\", \"-n\", \"-t\", jmx_file, \"-l\", jtl_file]\n    subprocess.run(cmd)\n    return jtl_file\ndef analyze_results(jtl_file=\"results.jtl\"):\n    df = pd.read_csv(jtl_file)\n    avg_time = df['elapsed'].mean()\n    error_rate = df[df['responseCode'] != '200'].shape[0] / df.shape[0]\n    throughput = df.shape[0] / ((df['timeStamp'].max() - df['timeStamp'].min()) / 1000)",
+        "detail": "tools",
+        "documentation": {}
+    },
+    {
+        "label": "analyze_results",
+        "kind": 2,
+        "importPath": "tools",
+        "description": "tools",
+        "peekOfCode": "def analyze_results(jtl_file=\"results.jtl\"):\n    df = pd.read_csv(jtl_file)\n    avg_time = df['elapsed'].mean()\n    error_rate = df[df['responseCode'] != '200'].shape[0] / df.shape[0]\n    throughput = df.shape[0] / ((df['timeStamp'].max() - df['timeStamp'].min()) / 1000)\n    print(f\"Average response time: {avg_time:.2f} ms\")\n    print(f\"Error rate: {error_rate * 100:.2f}%\")\n    print(f\"Throughput: {throughput:.2f} req/sec\")\n    return {\n        \"avg_response_time\": avg_time,",
+        "detail": "tools",
+        "documentation": {}
+    }
+]
