@@ -1,18 +1,28 @@
 import os
-from dotenv import load_dotenv
-
-load_dotenv()  # Load environment variables from .env
-
+import logging
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_core.runnables import RunnableSequence
 from prompts import GENERATE_JMX_PROMPT
 from tools import run_jmeter, analyze_results
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 print("🧠 Initializing LLM...")
 
-# Initialize LLM
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+# Load OpenAI API key from .env or environment
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise EnvironmentError("Missing OPENAI_API_KEY in environment or .env file")
+
+# Initialize LLM - Fallback to gpt-3.5-turbo if GPT-4 access denied
+try:
+    llm = ChatOpenAI(model="gpt-4o", temperature=0, openai_api_key=OPENAI_API_KEY)
+except Exception as e:
+    logger.warning("Failed to load GPT-4, falling back to gpt-3.5-turbo")
+    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, openai_api_key=OPENAI_API_KEY)
 
 # Task queue
 task_queue = [
@@ -29,8 +39,8 @@ context = {
     "output_file": "results.jtl"
 }
 
-# Combine LLM + Prompt into a runnable chain
-chain = llm | GENERATE_JMX_PROMPT
+# Build chain: prompt → llm
+chain: RunnableSequence = GENERATE_JMX_PROMPT | llm
 
 # Loop through tasks
 for task in task_queue:
@@ -43,12 +53,19 @@ for task in task_queue:
         print("📝 Generating JMeter test plan...")
         try:
             response = chain.invoke(context)
+            jmx_content = response.content.strip()
+
+            # Basic validation for XML content
+            if "<?xml" not in jmx_content[:50]:
+                raise ValueError("Generated content is not valid XML.")
+
             with open("test.jmx", "w", encoding="utf-8") as f:
-                f.write(response.content.strip())
+                f.write(jmx_content)
+
             print("✅ Test plan saved to test.jmx")
             task["done"] = True
         except Exception as e:
-            print(f"❌ Failed to generate test plan: {e}")
+            logger.error(f"❌ Failed to generate test plan: {e}")
             break
 
     elif task["task"] == "run test":
@@ -58,7 +75,7 @@ for task in task_queue:
             print(f"✅ Test completed. Results saved to {result_file}")
             task["done"] = True
         except Exception as e:
-            print(f"❌ Failed to run test: {e}")
+            logger.error(f"❌ Failed to run test: {e}")
             break
 
     elif task["task"] == "analyze results":
@@ -70,8 +87,10 @@ for task in task_queue:
             print(f"Error Rate: {stats['error_rate'] * 100:.2f}%")
             print(f"Throughput: {stats['throughput']:.2f} req/sec")
             task["done"] = True
+        except FileNotFoundError:
+            logger.error("❌ results.jtl not found. Did JMeter run successfully?")
         except Exception as e:
-            print(f"❌ Failed to analyze results: {e}")
+            logger.error(f"❌ Failed to analyze results: {e}")
             break
 
 print("\n🏁 All tasks completed.")
